@@ -6,9 +6,8 @@ services:
     region: virginia
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    dockerCommand: /bin/sh scripts/start-render.sh
     healthCheckPath: /health
-    autoDeployTrigger: checksPass
+    autoDeployTrigger: commit
     envVars:
       - key: APP_ENV
         value: production
