@@ -6,8 +6,7 @@ services:
     region: virginia
     dockerfilePath: ./Dockerfile
     dockerContext: .
-    dockerCommand: >-
-      /bin/sh -c 'python scripts/seed.py && exec uvicorn app.main:app --host 0.0.0.0 --port "$PORT"'
+    dockerCommand: /bin/sh scripts/start-render.sh
     healthCheckPath: /health
     autoDeployTrigger: checksPass
     envVars:
