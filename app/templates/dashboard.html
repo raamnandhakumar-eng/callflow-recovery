@@ -3,66 +3,344 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CallFlow Recovery product dashboard for {{ tenant.name }}.">
   <title>{{ tenant.name }} | CallFlow Recovery</title>
   <link rel="stylesheet" href="/static/dashboard.css">
+  <script defer src="/static/dashboard.js"></script>
 </head>
-<body>
-  <main>
-    <header>
-      <p class="eyebrow">LIVE DEPLOYMENT OUTCOMES</p>
-      <h1>{{ tenant.name }}</h1>
-      <p>Voice intake → grounded answer → booking → CRM → SMS → trace.</p>
-    </header>
-
-    <section class="grid metrics">
-      <article><span>Calls</span><strong>{{ metrics.calls }}</strong></article>
-      <article><span>Bookings</span><strong>{{ metrics.bookings }}</strong></article>
-      <article><span>Booking rate</span><strong>{{ '%.1f'|format(metrics.booking_rate * 100) }}%</strong></article>
-      <article><span>p95 latency</span><strong>{{ metrics.p95_latency_ms }} ms</strong></article>
-      <article><span>Cost / booking</span><strong>${{ '%.4f'|format(metrics.cost_per_booking_usd) }}</strong></article>
-      <article><span>Recovered revenue</span><strong>${{ '%.0f'|format(metrics.estimated_recovered_revenue_usd) }}</strong></article>
-    </section>
-
-    <section class="panel">
-      <h2>Before / after</h2>
-      <div class="before-after">
-        <div><span>Baseline expected lost calls</span><strong>{{ metrics.baseline_expected_lost_calls }}</strong></div>
-        <div><span>CRM completion</span><strong>{{ '%.0f'|format(metrics.crm_completion_rate * 100) }}%</strong></div>
-        <div><span>SMS completion</span><strong>{{ '%.0f'|format(metrics.sms_completion_rate * 100) }}%</strong></div>
+<body class="app-body" data-tenant="{{ tenant.slug }}">
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <a class="brand brand-sidebar" href="/">
+          <span class="brand-mark">CF</span>
+          <span>CallFlow Recovery</span>
+        </a>
+        <button class="sidebar-close" id="sidebarClose" aria-label="Close navigation">×</button>
       </div>
-    </section>
 
-    <section class="panel">
-      <h2>Recent traces</h2>
-      <table>
-        <thead><tr><th>Call</th><th>Intent</th><th>Outcome</th><th>Latency</th><th>Cost</th></tr></thead>
-        <tbody>
-        {% for trace in traces %}
-          <tr>
-            <td>{{ trace.external_call_id }}</td>
-            <td>{{ trace.intent }}</td>
-            <td>{{ trace.status }}</td>
-            <td>{{ trace.latency_ms }} ms</td>
-            <td>${{ '%.5f'|format(trace.cost_usd) }}</td>
-          </tr>
-        {% else %}
-          <tr><td colspan="5">No calls yet. Run the synthetic scenarios.</td></tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    </section>
+      <div class="tenant-switcher">
+        <span class="tenant-avatar">NH</span>
+        <div><strong>{{ tenant.name }}</strong><small>{{ environment }} environment</small></div>
+        <span class="chevron">⌄</span>
+      </div>
 
-    <section class="panel">
-      <h2>Learning loop</h2>
-      <p>Unresolved calls become FAQ candidates. Approval creates an approved knowledge document and a regression case.</p>
-      <ul>
-      {% for suggestion in suggestions %}
-        <li><strong>{{ suggestion.count }}×</strong> {{ suggestion.question }} <span>{{ suggestion.status }}</span></li>
-      {% else %}
-        <li>No unresolved clusters.</li>
-      {% endfor %}
-      </ul>
-    </section>
-  </main>
+      <nav class="sidebar-nav" aria-label="Product sections">
+        <a class="active" href="#overview"><span>⌂</span> Overview</a>
+        <a href="#live-operations"><span>◉</span> Live operations</a>
+        <a href="#revenue"><span>↗</span> Revenue recovery</a>
+        <a href="#call-review"><span>☷</span> Call review</a>
+        <a href="#knowledge"><span>✦</span> Knowledge gaps</a>
+        <a href="#deployment"><span>⚙</span> Deployment</a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="environment-card">
+          <span class="environment-icon">✓</span>
+          <div><strong>System healthy</strong><small>All local checks passing</small></div>
+        </div>
+        <a class="sidebar-link" href="/docs">API documentation ↗</a>
+        <a class="sidebar-link" href="https://github.com/raamnandhakumar-eng/callflow-recovery">GitHub repository ↗</a>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="app-main">
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <button class="menu-button" id="menuButton" aria-label="Open navigation">☰</button>
+          <div>
+            <p class="breadcrumb">CallFlow Recovery / {{ tenant.name }}</p>
+            <h1>Revenue Operations</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <span class="system-pill"><span></span> System online</span>
+          <a class="button button-small button-dark" href="#live-operations">Run demo call</a>
+        </div>
+      </header>
+
+      <div class="app-content">
+        <section id="overview" class="page-section">
+          <div class="page-heading-row">
+            <div>
+              <p class="eyebrow">OUTCOME OVERVIEW</p>
+              <h2>Every call, every action, every recovered dollar.</h2>
+              <p>Metrics are computed from persisted call traces and integration records.</p>
+            </div>
+            <div class="date-chip">All-time demo data</div>
+          </div>
+
+          <div class="metric-grid">
+            <article class="metric-card metric-card-primary">
+              <div class="metric-label"><span>Recovered revenue</span><span class="metric-icon">$</span></div>
+              <strong id="metricRevenue">${{ '%.0f'|format(metrics.estimated_recovered_revenue_usd) }}</strong>
+              <small>{{ metrics.bookings }} verified booking{{ '' if metrics.bookings == 1 else 's' }}</small>
+            </article>
+            <article class="metric-card">
+              <div class="metric-label"><span>Calls handled</span><span class="metric-icon">☎</span></div>
+              <strong id="metricCalls">{{ metrics.calls }}</strong>
+              <small>Across voice and synthetic runs</small>
+            </article>
+            <article class="metric-card">
+              <div class="metric-label"><span>Booking conversion</span><span class="metric-icon">✓</span></div>
+              <strong id="metricBookingRate">{{ '%.1f'|format(metrics.booking_rate * 100) }}%</strong>
+              <small>{{ metrics.bookings }} completed outcomes</small>
+            </article>
+            <article class="metric-card">
+              <div class="metric-label"><span>p95 latency</span><span class="metric-icon">⚡</span></div>
+              <strong id="metricLatency">{{ metrics.p95_latency_ms }} ms</strong>
+              <small>End-to-end orchestration</small>
+            </article>
+            <article class="metric-card">
+              <div class="metric-label"><span>Cost per booking</span><span class="metric-icon">¢</span></div>
+              <strong id="metricCost">${{ '%.4f'|format(metrics.cost_per_booking_usd) }}</strong>
+              <small>${{ '%.4f'|format(metrics.total_cost_usd) }} total model cost</small>
+            </article>
+            <article class="metric-card">
+              <div class="metric-label"><span>Escalation rate</span><span class="metric-icon">↗</span></div>
+              <strong>{{ '%.1f'|format(metrics.escalation_rate * 100) }}%</strong>
+              <small>{{ metrics.escalations }} human handoff{{ '' if metrics.escalations == 1 else 's' }}</small>
+            </article>
+          </div>
+        </section>
+
+        <section id="live-operations" class="page-section">
+          <div class="section-title-row">
+            <div><p class="eyebrow">LIVE OPERATIONS</p><h2>Run the complete workflow</h2></div>
+            <span class="section-note">Uses the same orchestrator as the Vapi webhook</span>
+          </div>
+
+          <div class="operations-grid">
+            <article class="panel demo-panel">
+              <div class="panel-header">
+                <div><h3>Scenario runner</h3><p>Trigger a full call path from the browser.</p></div>
+                <span class="live-pill"><span></span> Ready</span>
+              </div>
+              <form id="demoCallForm" class="demo-form">
+                <label>
+                  Scenario
+                  <select id="scenarioSelect" name="scenario">
+                    <option value="appointment">Appointment booking</option>
+                    <option value="pricing">Pricing question</option>
+                    <option value="emergency">After-hours emergency</option>
+                    <option value="knowledge-gap">Unsupported question</option>
+                    <option value="custom">Custom caller request</option>
+                  </select>
+                </label>
+                <label>
+                  Caller transcript
+                  <textarea id="transcriptInput" name="transcript" rows="4">I need to book an appointment for an AC diagnostic.</textarea>
+                </label>
+                <div class="form-row">
+                  <label>Customer name<input id="customerNameInput" value="Jordan Lee"></label>
+                  <label>Caller phone<input id="callerPhoneInput" value="+12125550123"></label>
+                </div>
+                <div class="form-row optional-fields" id="bookingFields">
+                  <label>Requested time<input id="requestedTimeInput" value="Thursday at 2 PM"></label>
+                  <label>Service<input id="serviceInput" value="AC diagnostic"></label>
+                </div>
+                <button class="button button-primary button-full" id="runCallButton" type="submit">Run end-to-end call</button>
+              </form>
+              <div class="demo-result hidden" id="demoResult" aria-live="polite"></div>
+            </article>
+
+            <article class="panel live-feed-panel">
+              <div class="panel-header">
+                <div><h3>Recent outcomes</h3><p>Latest persisted call traces.</p></div>
+                <a class="text-link compact-link" href="#call-review">Review all →</a>
+              </div>
+              <div class="activity-feed">
+                {% for trace in traces[:6] %}
+                <div class="activity-item">
+                  <span class="activity-status status-{{ trace.status }}"></span>
+                  <div class="activity-content">
+                    <div><strong>{{ trace.intent|replace('_', ' ')|title }}</strong><span class="badge badge-{{ trace.status }}">{{ trace.status }}</span></div>
+                    <p>{{ trace.transcript }}</p>
+                    <small>{{ trace.latency_ms }} ms · ${{ '%.5f'|format(trace.cost_usd) }} · {{ '%.0f'|format(trace.confidence * 100) }}% confidence</small>
+                  </div>
+                </div>
+                {% else %}
+                <div class="empty-state"><span>☎</span><h4>No calls yet</h4><p>Run the first scenario to populate live outcomes.</p></div>
+                {% endfor %}
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="revenue" class="page-section">
+          <div class="section-title-row">
+            <div><p class="eyebrow">REVENUE RECOVERY</p><h2>Before versus after</h2></div>
+            <span class="section-note">Average booking value: ${{ '%.0f'|format(tenant.average_booking_value) }}</span>
+          </div>
+
+          <div class="revenue-grid">
+            <article class="panel revenue-summary">
+              <div class="before-after-header">
+                <div><span class="baseline-label">Before CallFlow</span><strong>{{ metrics.baseline_expected_lost_calls }}</strong><small>expected lost calls</small></div>
+                <div class="recovery-arrow">→</div>
+                <div><span class="after-label">After CallFlow</span><strong>{{ metrics.bookings }}</strong><small>verified bookings</small></div>
+              </div>
+              <div class="revenue-bar-wrap">
+                <div class="revenue-bar-label"><span>Recovered booking value</span><strong>${{ '%.0f'|format(metrics.estimated_recovered_revenue_usd) }}</strong></div>
+                <div class="revenue-bar"><span style="width: {{ 100 if metrics.bookings else 0 }}%"></span></div>
+              </div>
+              <p class="panel-footnote">The estimate is booking count × configured average booking value. Replace with downstream closed-won revenue when a production CRM is connected.</p>
+            </article>
+
+            <article class="panel intent-panel">
+              <div class="panel-header"><div><h3>Intent mix</h3><p>What callers need most.</p></div></div>
+              <div class="intent-list">
+                {% for intent, count in intent_counts.items() %}
+                <div class="intent-row">
+                  <div><span>{{ intent|replace('_', ' ')|title }}</span><strong>{{ count }}</strong></div>
+                  <div class="intent-bar"><span style="width: {{ (count / max_intent_count * 100)|round }}%"></span></div>
+                </div>
+                {% else %}
+                <div class="empty-state compact-empty"><p>No intent data yet.</p></div>
+                {% endfor %}
+              </div>
+            </article>
+
+            <article class="panel completion-panel">
+              <div class="panel-header"><div><h3>Workflow completion</h3><p>Verified downstream actions.</p></div></div>
+              <div class="completion-ring-grid">
+                <div class="ring-stat" style="--value: {{ metrics.crm_completion_rate * 100 }}"><div><strong>{{ '%.0f'|format(metrics.crm_completion_rate * 100) }}%</strong><span>CRM</span></div></div>
+                <div class="ring-stat" style="--value: {{ metrics.sms_completion_rate * 100 }}"><div><strong>{{ '%.0f'|format(metrics.sms_completion_rate * 100) }}%</strong><span>SMS</span></div></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="call-review" class="page-section">
+          <div class="section-title-row">
+            <div><p class="eyebrow">CALL REVIEW</p><h2>Inspect the complete trace</h2></div>
+            <span class="section-note">Outcome, grounding, actions, latency, and cost</span>
+          </div>
+
+          <article class="panel table-panel">
+            <div class="table-scroll">
+              <table class="calls-table">
+                <thead><tr><th>Call</th><th>Intent</th><th>Outcome</th><th>Confidence</th><th>Latency</th><th>Cost</th><th></th></tr></thead>
+                <tbody>
+                {% for trace in traces %}
+                  <tr>
+                    <td><strong>{{ trace.external_call_id }}</strong><small>{{ trace.caller_phone }}</small></td>
+                    <td>{{ trace.intent|replace('_', ' ')|title }}</td>
+                    <td><span class="badge badge-{{ trace.status }}">{{ trace.status }}</span></td>
+                    <td>{{ '%.0f'|format(trace.confidence * 100) }}%</td>
+                    <td>{{ trace.latency_ms }} ms</td>
+                    <td>${{ '%.5f'|format(trace.cost_usd) }}</td>
+                    <td><button class="trace-toggle" type="button" data-target="trace-{{ loop.index }}">Review</button></td>
+                  </tr>
+                  <tr class="trace-detail-row hidden" id="trace-{{ loop.index }}">
+                    <td colspan="7">
+                      <div class="trace-detail-grid">
+                        <div><span>Caller transcript</span><p>{{ trace.transcript }}</p></div>
+                        <div><span>Agent response</span><p>{{ trace.answer or 'No customer-facing answer was generated.' }}</p></div>
+                        <div><span>Grounding</span>
+                          {% if trace.citations %}
+                          <ul>{% for citation in trace.citations %}<li>{{ citation.title or citation.source }} <small>{{ citation.source }}</small></li>{% endfor %}</ul>
+                          {% else %}<p>No citations. The call was routed or escalated without a knowledge answer.</p>{% endif %}
+                        </div>
+                        <div><span>Execution trace</span>
+                          <ol>
+                            {% for step in trace.steps %}
+                            <li><strong>{{ step.step|replace('_', ' ')|title }}</strong></li>
+                            {% else %}<li>No recorded steps.</li>{% endfor %}
+                          </ol>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                {% else %}
+                  <tr><td colspan="7"><div class="empty-state compact-empty"><p>No traces yet. Run a scenario above.</p></div></td></tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section id="knowledge" class="page-section">
+          <div class="section-title-row">
+            <div><p class="eyebrow">LEARNING LOOP</p><h2>Turn failures into approved knowledge</h2></div>
+            <span class="section-note">Human approval required before publication</span>
+          </div>
+
+          <div class="knowledge-grid">
+            <article class="panel suggestions-panel">
+              <div class="panel-header"><div><h3>Knowledge gaps</h3><p>Repeated unresolved questions from real traces.</p></div><span class="count-chip">{{ suggestions|length }}</span></div>
+              <div class="suggestion-list">
+                {% for suggestion in suggestions %}
+                <div class="suggestion-card">
+                  <div class="suggestion-top"><span class="badge badge-{{ suggestion.status }}">{{ suggestion.status }}</span><small>{{ suggestion.count }} occurrence{{ '' if suggestion.count == 1 else 's' }}</small></div>
+                  <h4>{{ suggestion.question }}</h4>
+                  {% if suggestion.status != 'approved' %}
+                  <form class="approval-form" data-suggestion-id="{{ suggestion.id }}">
+                    <textarea rows="3" placeholder="Write the approved customer-facing answer..." required minlength="10"></textarea>
+                    <button class="button button-dark button-small" type="submit">Approve and publish</button>
+                    <span class="approval-status" aria-live="polite"></span>
+                  </form>
+                  {% else %}
+                  <p class="approved-copy">Published to the knowledge base and locked into a regression case.</p>
+                  {% endif %}
+                </div>
+                {% else %}
+                <div class="empty-state"><span>✦</span><h4>No unresolved questions</h4><p>Run the knowledge-gap scenario to exercise the approval loop.</p></div>
+                {% endfor %}
+              </div>
+            </article>
+
+            <article class="panel knowledge-panel">
+              <div class="panel-header"><div><h3>Approved knowledge</h3><p>Documents available to retrieval.</p></div><span class="count-chip">{{ documents|length }}</span></div>
+              <div class="document-list">
+                {% for document in documents %}
+                <div class="document-item">
+                  <span class="document-icon">▤</span>
+                  <div><strong>{{ document.title }}</strong><small>{{ document.source }} · v{{ document.version }}</small></div>
+                  <span class="approved-dot" title="Approved"></span>
+                </div>
+                {% else %}
+                <div class="empty-state compact-empty"><p>No knowledge documents found.</p></div>
+                {% endfor %}
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="deployment" class="page-section">
+          <div class="section-title-row">
+            <div><p class="eyebrow">DEPLOYMENT</p><h2>Integration and environment status</h2></div>
+            <span class="section-note">No credentials are exposed in this view</span>
+          </div>
+
+          <div class="integration-grid">
+            <article class="integration-card"><span class="integration-logo">V</span><div><strong>Voice</strong><small>Vapi webhook</small></div><span class="integration-state">{{ integrations.voice }}</span></article>
+            <article class="integration-card"><span class="integration-logo">H</span><div><strong>CRM</strong><small>HubSpot adapter</small></div><span class="integration-state">{{ integrations.crm }}</span></article>
+            <article class="integration-card"><span class="integration-logo">T</span><div><strong>Messaging</strong><small>Twilio SMS</small></div><span class="integration-state">{{ integrations.sms }}</span></article>
+            <article class="integration-card"><span class="integration-logo">AI</span><div><strong>LLM</strong><small>Grounded generation</small></div><span class="integration-state">{{ integrations.llm }}</span></article>
+            <article class="integration-card"><span class="integration-logo">DB</span><div><strong>Database</strong><small>Trace and outcome store</small></div><span class="integration-state">{{ integrations.database }}</span></article>
+          </div>
+
+          <article class="panel appointments-panel">
+            <div class="panel-header"><div><h3>Recent bookings</h3><p>Verified appointments created by the workflow.</p></div><span class="count-chip">{{ appointments|length }}</span></div>
+            <div class="appointment-grid">
+              {% for appointment in appointments %}
+              <div class="appointment-card">
+                <div><strong>{{ appointment.customer_name }}</strong><small>{{ appointment.phone }}</small></div>
+                <p>{{ appointment.service }}</p>
+                <span>{{ appointment.scheduled_for }}</span>
+              </div>
+              {% else %}
+              <div class="empty-state compact-empty"><p>No appointments yet.</p></div>
+              {% endfor %}
+            </div>
+          </article>
+        </section>
+      </div>
+    </main>
+  </div>
 </body>
 </html>
