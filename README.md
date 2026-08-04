@@ -4,6 +4,19 @@
 
 CallFlow Recovery is a production-style reference deployment for a service business that believes it is "losing calls." The build treats the real problem as a chain of business-state changes, not as a conversational demo.
 
+## Product website
+
+The repository includes a complete product interface, not only backend endpoints:
+
+- public product landing page at `/`;
+- interactive scenario runner for appointment, pricing, emergency, and knowledge-gap calls;
+- revenue recovery dashboard with persisted booking, cost, latency, CRM, and SMS metrics;
+- expandable call traces with transcripts, grounding citations, and workflow steps;
+- human approval interface for unresolved questions;
+- deployment status for voice, CRM, messaging, LLM, and database adapters.
+
+The browser scenario runner calls the same orchestration service used by the Vapi webhook, so the website is an operational interface over the real vertical slice rather than a static mockup.
+
 ## Working path
 
 1. Receive a real Vapi webhook or a synthetic call.
@@ -37,7 +50,7 @@ flowchart LR
     B --> G[HubSpot]
     B --> H[Twilio SMS]
     B --> I[(Trace and outcome store)]
-    I --> J[Outcomes dashboard]
+    I --> J[Product website]
     I --> K[Learning-loop queue]
     K --> D
 ```
@@ -53,16 +66,17 @@ python scripts/seed.py
 uvicorn app.main:app --reload
 ```
 
-In a second terminal:
+Open:
+
+- Product website: `http://localhost:8000/`
+- Operations dashboard: `http://localhost:8000/dashboard/northstar-hvac`
+- API docs: `http://localhost:8000/docs`
+
+The dashboard can run the end-to-end scenarios directly. You can also use the command-line runner:
 
 ```bash
 python scripts/run_scenarios.py --replay
 ```
-
-Open:
-
-- API docs: `http://localhost:8000/docs`
-- Dashboard: `http://localhost:8000/dashboard/northstar-hvac`
 
 ## Run with PostgreSQL and pgvector
 
@@ -77,7 +91,7 @@ The Compose deployment uses `pgvector/pgvector:pg16` and automatically seeds two
 
 ### Vapi
 
-Create the custom function from `config/vapi-tool.json`, attach its ID using `config/vapi-assistant.json`, and configure a secured server credential. The Vapi adapter accepts `tool-calls` events and returns results keyed by `toolCallId`. The synthetic runner exercises the same orchestration service used by the voice adapter.
+Create the custom function from `config/vapi-tool.json`, attach its ID using `config/vapi-assistant.json`, and configure a secured server credential. The Vapi adapter accepts `tool-calls` events and returns results keyed by `toolCallId`. The synthetic runner and browser scenario runner exercise the same orchestration service used by the voice adapter.
 
 ### HubSpot
 
@@ -107,7 +121,7 @@ python scripts/run_scenarios.py --base-url http://localhost:8000 --replay
 
 ## Learning loop
 
-An unsupported call creates a clustered FAQ suggestion. Approving it:
+An unsupported call creates a clustered FAQ suggestion. Approving it from the dashboard or API:
 
 - creates an approved knowledge document;
 - marks the suggestion approved;
@@ -123,19 +137,20 @@ ruff check .
 pytest --cov=app --cov-report=term-missing
 ```
 
-The integration tests prove the complete mocked vertical slice, grounded retrieval, idempotent replay, persisted metrics, and learning-loop approval.
+The integration tests prove the complete mocked vertical slice, grounded retrieval, idempotent replay, persisted metrics, learning-loop approval, and product website routes.
 
 ## Production evidence to collect next
 
 The repository is runnable without paid infrastructure, but the portfolio claim becomes materially stronger after these real steps:
 
-1. connect a Vapi or Retell number;
-2. place and record real calls;
-3. connect a HubSpot sandbox;
-4. send a real Twilio confirmation;
-5. deploy PostgreSQL with pgvector;
-6. record p50/p95 latency and cost per booking;
-7. replace `docs/incident-report.md` with a genuine incident from the live deployment.
+1. deploy the product website to a public HTTPS endpoint;
+2. connect a Vapi or Retell number;
+3. place and record real calls;
+4. connect a HubSpot sandbox;
+5. send a real Twilio confirmation;
+6. deploy PostgreSQL with pgvector;
+7. record p50/p95 latency and cost per booking;
+8. replace `docs/incident-report.md` with a genuine incident from the live deployment.
 
 Do not describe the project as a customer production deployment until a real external user depends on it.
 
