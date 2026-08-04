@@ -2,6 +2,8 @@
 
 **A complete forward-deployed vertical slice:** caller intent → approved knowledge → appointment → CRM → SMS → persisted outcome.
 
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/raamnandhakumar-eng/callflow-recovery)
+
 CallFlow Recovery is a production-style reference deployment for a service business that believes it is "losing calls." The build treats the real problem as a chain of business-state changes, not as a conversational demo.
 
 ## Product website
@@ -16,6 +18,21 @@ The repository includes a complete product interface, not only backend endpoints
 - deployment status for voice, CRM, messaging, LLM, and database adapters.
 
 The browser scenario runner calls the same orchestration service used by the Vapi webhook, so the website is an operational interface over the real vertical slice rather than a static mockup.
+
+## Deploy publicly on Render
+
+The root-level [`render.yaml`](render.yaml) is a one-click Blueprint that provisions:
+
+- the Docker-based FastAPI web service;
+- a private Render PostgreSQL database;
+- automatic demo-tenant and knowledge-base seeding;
+- `/health` monitoring;
+- automatic deployment after GitHub CI checks pass;
+- a generated Vapi webhook secret.
+
+Click the **Deploy to Render** button above, sign in to Render, review the two resources, and approve the Blueprint. The product runs in deterministic mock mode immediately, so OpenAI, HubSpot, Twilio, and Vapi credentials can be connected later from the Render environment settings.
+
+After deployment, open the generated `onrender.com` URL. The product website is at `/`, the operations console is at `/dashboard/northstar-hvac`, and the API documentation is at `/docs`.
 
 ## Working path
 
@@ -137,7 +154,7 @@ ruff check .
 pytest --cov=app --cov-report=term-missing
 ```
 
-The integration tests prove the complete mocked vertical slice, grounded retrieval, idempotent replay, persisted metrics, learning-loop approval, and product website routes.
+The integration tests prove the complete mocked vertical slice, grounded retrieval, idempotent replay, persisted metrics, learning-loop approval, product website routes, and Render database URL compatibility.
 
 ## Production evidence to collect next
 
@@ -148,9 +165,8 @@ The repository is runnable without paid infrastructure, but the portfolio claim 
 3. place and record real calls;
 4. connect a HubSpot sandbox;
 5. send a real Twilio confirmation;
-6. deploy PostgreSQL with pgvector;
-7. record p50/p95 latency and cost per booking;
-8. replace `docs/incident-report.md` with a genuine incident from the live deployment.
+6. record p50/p95 latency and cost per booking;
+7. replace `docs/incident-report.md` with a genuine incident from the live deployment.
 
 Do not describe the project as a customer production deployment until a real external user depends on it.
 
