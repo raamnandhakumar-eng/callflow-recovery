@@ -45,6 +45,15 @@ def get_tenant(db: Session, slug: str) -> Tenant:
     return tenant
 
 
+@router.get("/", response_class=HTMLResponse)
+def home(request: Request) -> HTMLResponse:
+    return templates.TemplateResponse(
+        request=request,
+        name="home.html",
+        context={"default_tenant_slug": settings.default_tenant_slug},
+    )
+
+
 @router.get("/health")
 def health() -> dict[str, str]:
     return {"status": "ok"}
@@ -205,12 +214,20 @@ def traces(
     return [
         {
             "external_call_id": row.external_call_id,
+            "caller_phone": row.caller_phone,
+            "transcript": row.transcript,
             "intent": row.intent,
+            "confidence": row.confidence,
             "status": row.status,
+            "answer": row.answer,
+            "citations": json.loads(row.citations_json),
             "latency_ms": row.latency_ms,
+            "input_tokens": row.input_tokens,
+            "output_tokens": row.output_tokens,
             "cost_usd": row.cost_usd,
             "escalated": row.escalated,
             "steps": json.loads(row.steps_json),
+            "started_at": row.started_at.isoformat(),
         }
         for row in rows
     ]
@@ -263,14 +280,39 @@ def dashboard(
     metric_data = metrics(tenant_slug, db)
     traces_data = traces(tenant_slug, db)
     suggestions = list_suggestions(tenant_slug, db)
-    documents = db.scalar(
-        select(func.count(KnowledgeDocument.id)).where(
-            KnowledgeDocument.tenant_id == tenant.id
-        )
-    ) or 0
-    appointments = db.scalar(
-        select(func.count(Appointment.id)).where(Appointment.tenant_id == tenant.id)
-    ) or 0
+    documents = db.scalars(
+        select(KnowledgeDocument)
+        .where(KnowledgeDocument.tenant_id == tenant.id)
+        .order_by(KnowledgeDocument.id.desc())
+        .limit(8)
+    ).all()
+    appointments = db.scalars(
+        select(Appointment)
+        .where(Appointment.tenant_id == tenant.id)
+        .order_by(Appointment.id.desc())
+        .limit(8)
+    ).all()
+
+    intent_counts: dict[str, int] = {}
+    for trace in traces_data:
+        intent = str(trace["intent"])
+        intent_counts[intent] = intent_counts.get(intent, 0) + 1
+    max_intent_count = max(intent_counts.values(), default=1)
+
+    integrations = {
+        "voice": "connected" if settings.vapi_webhook_secret else "demo mode",
+        "crm": "connected" if settings.hubspot_access_token else "mock adapter",
+        "sms": (
+            "connected"
+            if settings.twilio_account_sid
+            and settings.twilio_auth_token
+            and settings.twilio_from_number
+            else "mock adapter"
+        ),
+        "llm": "connected" if settings.openai_api_key else "deterministic mode",
+        "database": "PostgreSQL" if settings.database_url.startswith("postgres") else "SQLite",
+    }
+
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
@@ -281,5 +323,9 @@ def dashboard(
             "suggestions": suggestions,
             "documents": documents,
             "appointments": appointments,
+            "intent_counts": intent_counts,
+            "max_intent_count": max_intent_count,
+            "integrations": integrations,
+            "environment": settings.app_env,
         },
     )
