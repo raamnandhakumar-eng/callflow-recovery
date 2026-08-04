@@ -1,0 +1,17 @@
+{
+  "name": "Northstar CallFlow Agent",
+  "firstMessage": "Thanks for calling Northstar Heating and Air. How can I help?",
+  "model": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "temperature": 0.1,
+    "toolIds": ["REPLACE_WITH_CREATED_TOOL_ID"],
+    "messages": [
+      {
+        "role": "system",
+        "content": "Use handle_customer_request for customer questions, bookings, and escalations. Speak only from the tool result. Never claim a booking succeeded unless the returned status is booked. Keep spoken responses short."
+      }
+    ]
+  },
+  "serverMessages": ["tool-calls", "status-update", "end-of-call-report"]
+}

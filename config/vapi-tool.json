@@ -1,0 +1,23 @@
+{
+  "type": "function",
+  "function": {
+    "name": "handle_customer_request",
+    "description": "Retrieve approved company knowledge, book appointments, update CRM, send SMS confirmation, or return an escalation outcome.",
+    "strict": true,
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "tenant_slug": {"type": "string", "description": "Trusted customer deployment identifier."},
+        "transcript": {"type": "string", "description": "The caller's complete request."},
+        "caller_phone": {"type": "string", "description": "Caller phone number in E.164 format."},
+        "customer_name": {"type": "string", "description": "Caller name when known."},
+        "requested_time": {"type": "string", "description": "Preferred appointment time when booking."},
+        "service": {"type": "string", "description": "Requested service when booking."}
+      },
+      "required": ["tenant_slug", "transcript", "caller_phone", "customer_name"]
+    }
+  },
+  "server": {
+    "url": "https://YOUR_PUBLIC_HOST/v1/webhooks/vapi"
+  }
+}

@@ -1,0 +1,17 @@
+:root { font-family: Inter, system-ui, sans-serif; color: #18202a; background: #f4f6f8; }
+body { margin: 0; }
+main { max-width: 1120px; margin: 0 auto; padding: 48px 24px 80px; }
+header { margin-bottom: 28px; }
+.eyebrow { letter-spacing: .13em; font-size: 12px; font-weight: 800; color: #2761d6; }
+h1 { font-size: clamp(38px, 6vw, 64px); margin: 4px 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
+.metrics article, .panel { background: white; border: 1px solid #dce2e8; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px rgba(20, 30, 45, .04); }
+.metrics span, .before-after span { display: block; color: #66717e; font-size: 13px; }
+.metrics strong { display: block; font-size: 28px; margin-top: 8px; }
+.panel { margin-top: 18px; }
+.before-after { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 18px; }
+.before-after strong { font-size: 24px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #e6eaef; font-size: 14px; }
+li { padding: 8px 0; }
+li span { color: #66717e; margin-left: 8px; }

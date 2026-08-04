@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ tenant.name }} | CallFlow Recovery</title>
+  <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">LIVE DEPLOYMENT OUTCOMES</p>
+      <h1>{{ tenant.name }}</h1>
+      <p>Voice intake → grounded answer → booking → CRM → SMS → trace.</p>
+    </header>
+
+    <section class="grid metrics">
+      <article><span>Calls</span><strong>{{ metrics.calls }}</strong></article>
+      <article><span>Bookings</span><strong>{{ metrics.bookings }}</strong></article>
+      <article><span>Booking rate</span><strong>{{ '%.1f'|format(metrics.booking_rate * 100) }}%</strong></article>
+      <article><span>p95 latency</span><strong>{{ metrics.p95_latency_ms }} ms</strong></article>
+      <article><span>Cost / booking</span><strong>${{ '%.4f'|format(metrics.cost_per_booking_usd) }}</strong></article>
+      <article><span>Recovered revenue</span><strong>${{ '%.0f'|format(metrics.estimated_recovered_revenue_usd) }}</strong></article>
+    </section>
+
+    <section class="panel">
+      <h2>Before / after</h2>
+      <div class="before-after">
+        <div><span>Baseline expected lost calls</span><strong>{{ metrics.baseline_expected_lost_calls }}</strong></div>
+        <div><span>CRM completion</span><strong>{{ '%.0f'|format(metrics.crm_completion_rate * 100) }}%</strong></div>
+        <div><span>SMS completion</span><strong>{{ '%.0f'|format(metrics.sms_completion_rate * 100) }}%</strong></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Recent traces</h2>
+      <table>
+        <thead><tr><th>Call</th><th>Intent</th><th>Outcome</th><th>Latency</th><th>Cost</th></tr></thead>
+        <tbody>
+        {% for trace in traces %}
+          <tr>
+            <td>{{ trace.external_call_id }}</td>
+            <td>{{ trace.intent }}</td>
+            <td>{{ trace.status }}</td>
+            <td>{{ trace.latency_ms }} ms</td>
+            <td>${{ '%.5f'|format(trace.cost_usd) }}</td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5">No calls yet. Run the synthetic scenarios.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel">
+      <h2>Learning loop</h2>
+      <p>Unresolved calls become FAQ candidates. Approval creates an approved knowledge document and a regression case.</p>
+      <ul>
+      {% for suggestion in suggestions %}
+        <li><strong>{{ suggestion.count }}×</strong> {{ suggestion.question }} <span>{{ suggestion.status }}</span></li>
+      {% else %}
+        <li>No unresolved clusters.</li>
+      {% endfor %}
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
