@@ -2,6 +2,8 @@
 
 **A complete forward-deployed vertical slice:** caller intent → approved knowledge → appointment → CRM → SMS → persisted outcome.
 
+**Live app:** [https://callflow-recovery.onrender.com/](https://callflow-recovery.onrender.com/)
+
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/raamnandhakumar-eng/callflow-recovery)
 
 CallFlow Recovery is a production-style reference deployment for a service business that believes it is "losing calls." The build treats the real problem as a chain of business-state changes, not as a conversational demo.
