@@ -2,7 +2,9 @@ def test_product_landing_page(client):
     response = client.get("/")
     assert response.status_code == 200
     assert "Recruiter demo" in response.text
-    assert "Run the demo" in response.text
+    assert "Turn a caller's words into a business action" in response.text
+    assert "phone number" in response.text.lower()
+    assert "transcript" in response.text.lower()
     assert "simulated" in response.text.lower()
     assert "/dashboard/northstar-hvac" in response.text
     assert "/ready" in response.text
