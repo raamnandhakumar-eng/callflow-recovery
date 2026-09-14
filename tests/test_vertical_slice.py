@@ -30,8 +30,9 @@ def test_full_booking_vertical_slice_and_idempotent_replay(client):
     data = first.json()
     assert data["status"] == "booked"
     assert data["appointment_id"]
-    assert data["crm_contact_id"].startswith("mock-")
-    assert data["sms_message_id"].startswith("mock-")
+    assert data["crm_contact_id"].startswith("demo-")
+    assert data["sms_message_id"].startswith("demo-")
+    assert "simulated" in data["answer"].lower()
     assert data["replayed"] is False
 
     replay = client.post("/v1/calls/simulate", json=booking_payload())
@@ -43,6 +44,10 @@ def test_full_booking_vertical_slice_and_idempotent_replay(client):
         assert db.scalar(select(func.count(Appointment.id))) == 1
         assert db.scalar(select(func.count(CRMWrite.id))) == 1
         assert db.scalar(select(func.count(SMSMessage.id))) == 1
+        crm = db.scalar(select(CRMWrite))
+        sms = db.scalar(select(SMSMessage))
+        assert crm and crm.provider == "demo"
+        assert sms and sms.provider == "demo" and sms.status == "simulated"
 
 
 def test_grounded_faq_answer_has_citation(client):
