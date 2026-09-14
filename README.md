@@ -6,7 +6,7 @@
 
 CallFlow Recovery is an inspectable vertical slice for service businesses that lose inbound demand. It is built around business-state changes rather than a chat transcript alone.
 
-## Recruiter: start here
+## Start here
 
 No account is required.
 
@@ -17,7 +17,7 @@ No account is required.
 5. Try the pricing, emergency, and knowledge-gap paths.
 6. Open `/ready` to see which integrations are live versus simulated.
 
-The public deployment runs in explicit recruiter-demo mode. Appointment records, retrieval, escalation, idempotency, traces, metrics, and the learning loop execute normally. If HubSpot or Twilio credentials are not connected, their adapter actions are clearly labeled simulated rather than presented as real external sends.
+The public deployment runs in explicit demo mode. Appointment records, retrieval, escalation, idempotency, traces, metrics, and the learning loop execute normally. If HubSpot or Twilio credentials are not connected, their adapter actions are clearly labeled simulated rather than presented as real external sends.
 
 ## What the product demonstrates
 
@@ -34,7 +34,7 @@ The public deployment runs in explicit recruiter-demo mode. Appointment records,
 
 ## Demo mode versus live mode
 
-### Recruiter demo
+### Public demo
 
 `DEMO_MODE=true`
 
@@ -99,7 +99,7 @@ flowchart LR
     B --> G[HubSpot Adapter]
     B --> H[Twilio Adapter]
     B --> I[(Trace + Outcome Store)]
-    I --> J[Recruiter Dashboard]
+    I --> J[Operations Dashboard]
     I --> K[Human-Gated Learning Queue]
     K --> D
 ```
@@ -115,7 +115,7 @@ The root `render.yaml` deploys the Docker-based FastAPI app with:
 - automatic demo-tenant and approved-knowledge seeding;
 - a generated Vapi webhook secret.
 
-The public deployment favors a reliable, credential-free recruiter experience. For customer production usage, replace the demo database with durable PostgreSQL and connect the external providers listed above.
+The public deployment favors a reliable, credential-free demo experience. For customer production usage, replace the demo database with durable PostgreSQL and connect the external providers listed above.
 
 ## Run locally
 
@@ -175,7 +175,7 @@ Current GitHub Actions result:
 - **87% application coverage**
 - Ruff lint checks passing
 
-The suite covers the end-to-end booking path, grounded FAQ responses, escalation, learning-loop approval, Vapi adapter contract, idempotent replay, persisted metrics, public website routes, recruiter-demo readiness, and fail-closed CRM/SMS behavior outside demo mode.
+The suite covers the end-to-end booking path, grounded FAQ responses, escalation, learning-loop approval, Vapi adapter contract, idempotent replay, persisted metrics, public website routes, demo readiness, and fail-closed CRM/SMS behavior outside demo mode.
 
 ## Claims boundary
 
