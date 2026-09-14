@@ -64,10 +64,7 @@ def run_smoke() -> None:
         "tenant_slug": "northstar-hvac",
         "external_call_id": call_id,
         "caller_phone": "+12125550123",
-        "customer_name": "Public Smoke Test",
-        "transcript": "I need to book an appointment for an AC diagnostic.",
-        "requested_time": "Thursday at 2 PM",
-        "service": "AC diagnostic",
+        "transcript": "Hi, my AC stopped working. I need an AC diagnostic Thursday at 2 PM.",
     }
     status, body = request("/v1/calls/simulate", method="POST", payload=payload)
     assert status == 200
@@ -76,6 +73,8 @@ def run_smoke() -> None:
     assert result["appointment_id"]
     assert result["crm_contact_id"].startswith("demo-")
     assert result["sms_message_id"].startswith("demo-")
+    assert "AC diagnostic" in result["answer"]
+    assert "Thursday at 2 PM" in result["answer"]
     assert "simulated" in result["answer"].lower()
 
     replay_status, replay_body = request("/v1/calls/simulate", method="POST", payload=payload)
