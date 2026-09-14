@@ -11,10 +11,12 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.readiness import router as readiness_router
 from app.api.routes import router
+from app.config import get_settings
 from app.db import Base, engine
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger("callflow")
+settings = get_settings()
 
 
 @asynccontextmanager
@@ -36,6 +38,37 @@ app.mount(
 )
 app.include_router(router)
 app.include_router(readiness_router)
+
+
+def is_admin_write(path: str, method: str) -> bool:
+    if method not in {"POST", "PUT", "PATCH", "DELETE"}:
+        return False
+    return path == "/v1/knowledge/documents" or (
+        path.startswith("/v1/learning/") and path.endswith("/approve")
+    )
+
+
+@app.middleware("http")
+async def protect_admin_writes(request: Request, call_next):
+    if is_admin_write(request.url.path, request.method):
+        supplied_key = request.headers.get("x-admin-key")
+        if settings.admin_api_key:
+            if supplied_key != settings.admin_api_key:
+                return JSONResponse(
+                    status_code=403,
+                    content={"detail": "Admin authorization required"},
+                )
+        elif settings.app_env in {"demo", "production"}:
+            return JSONResponse(
+                status_code=403,
+                content={
+                    "detail": (
+                        "Knowledge administration is disabled on the public demo. "
+                        "Configure ADMIN_API_KEY to enable protected writes."
+                    )
+                },
+            )
+    return await call_next(request)
 
 
 @app.middleware("http")
