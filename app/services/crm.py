@@ -43,11 +43,15 @@ class CRMService:
         if self.settings.hubspot_access_token:
             contact_id = await self._hubspot_upsert(phone, {"properties": payload["properties"]})
             provider = "hubspot"
-        else:
-            contact_id = "mock-" + hashlib.sha256(
+        elif self.settings.demo_mode:
+            contact_id = "demo-" + hashlib.sha256(
                 f"{tenant.slug}:{phone}".encode("utf-8")
             ).hexdigest()[:12]
-            provider = "mock"
+            provider = "demo"
+        else:
+            raise RuntimeError(
+                "HubSpot is not configured. Set HUBSPOT_ACCESS_TOKEN or enable DEMO_MODE."
+            )
 
         record = CRMWrite(
             tenant_id=tenant.id,
