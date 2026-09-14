@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Interactive recruiter demo of CallFlow Recovery: intent routing, approved-knowledge retrieval, appointment creation, CRM/SMS adapters, escalation, and outcome tracking.">
-  <title>CallFlow Recovery | Interactive AI Workflow Demo</title>
+  <meta name="description" content="CallFlow Recovery turns caller transcripts into tracked business actions such as answers, appointment creation, escalation, CRM updates, and SMS follow-up.">
+  <title>CallFlow Recovery | Interactive Recruiter Demo</title>
   <link rel="stylesheet" href="/static/dashboard.css">
 </head>
 <body class="marketing-body">
@@ -14,12 +14,11 @@
       <span>CallFlow Recovery</span>
     </a>
     <nav class="marketing-links" aria-label="Primary navigation">
-      <a href="#try">Try it</a>
-      <a href="#workflow">Workflow</a>
-      <a href="#architecture">Architecture</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#outcomes">Outcomes</a>
       <a href="/docs">API</a>
     </nav>
-    <a class="button button-small button-light" href="/dashboard/{{ default_tenant_slug }}">Open interactive demo</a>
+    <a class="button button-small button-light" href="/dashboard/{{ default_tenant_slug }}#live-operations">Try the demo</a>
   </header>
 
   <main>
@@ -28,128 +27,103 @@
       <div class="hero-glow hero-glow-two"></div>
       <div class="hero-copy">
         <div class="hero-kicker"><span class="status-dot"></span> Recruiter demo · no sign-in required</div>
-        <h1>See an AI call workflow change business state, not just generate text.</h1>
-        <p class="hero-lede">Run a service-call scenario through intent classification, approved-knowledge retrieval, appointment creation, CRM/SMS adapters, escalation, and persisted outcome tracking. Then inspect the complete execution trace.</p>
+        <h1>Turn a caller's words into a business action.</h1>
+        <p class="hero-lede">CallFlow Recovery takes two inputs: the phone number the customer is calling from and the call transcript. It figures out what the customer needs, answers from approved business knowledge, creates an appointment when appropriate, escalates risky or unsupported requests, and records the full outcome.</p>
         <div class="hero-actions">
-          <a class="button button-primary" href="/dashboard/{{ default_tenant_slug }}#live-operations">Run the demo</a>
+          <a class="button button-primary" href="/dashboard/{{ default_tenant_slug }}#live-operations">Process a transcript</a>
           <a class="button button-ghost" href="https://github.com/raamnandhakumar-eng/callflow-recovery">View source</a>
         </div>
         <div class="hero-proof">
-          <span>FastAPI</span>
-          <span>RAG + citations</span>
-          <span>Idempotent writes</span>
-          <span>Automated tests</span>
+          <span>Phone + transcript only</span>
+          <span>Intent detection</span>
+          <span>Approved-knowledge RAG</span>
+          <span>Persisted outcomes</span>
         </div>
       </div>
 
-      <div class="hero-product-card" aria-label="Recruiter demo instructions">
+      <div class="hero-product-card" aria-label="How to try CallFlow Recovery">
         <div class="product-card-topbar">
           <div>
             <span class="product-card-label">TRY IT IN 3 STEPS</span>
-            <strong>Northstar HVAC demo tenant</strong>
+            <strong>CallFlow Recovery demo</strong>
           </div>
           <span class="live-pill"><span></span> Ready</span>
         </div>
         <ol class="workflow-preview">
-          <li class="done"><span>1</span><div><strong>Open the dashboard</strong><small>No account or setup required</small></div></li>
-          <li class="done"><span>2</span><div><strong>Run “Appointment booking”</strong><small>The same orchestrator used by the voice webhook executes</small></div></li>
-          <li class="done"><span>3</span><div><strong>Inspect the trace</strong><small>Intent, retrieval, appointment, CRM/SMS adapter, latency, and outcome</small></div></li>
+          <li class="done"><span>1</span><div><strong>Enter the caller number</strong><small>The number the customer is calling from</small></div></li>
+          <li class="done"><span>2</span><div><strong>Paste or type the transcript</strong><small>Use your own words or one of the sample transcripts</small></div></li>
+          <li class="done"><span>3</span><div><strong>See what CallFlow does</strong><small>Answer, appointment, escalation, downstream actions, and trace</small></div></li>
         </ol>
         <div class="product-card-outcome">
-          <div><span>Demo mode</span><strong>Explicit</strong></div>
+          <div><span>Input</span><strong>2 fields</strong></div>
           <div><span>CRM / SMS</span><strong>Simulated*</strong></div>
-          <div><span>Persistence</span><strong>Working</strong></div>
+          <div><span>Trace</span><strong>Persisted</strong></div>
         </div>
-        <p><small>*When live credentials are connected, the same adapters call HubSpot and Twilio. The public recruiter demo labels simulated actions instead of presenting them as real sends.</small></p>
+        <p><small>*The public demo clearly labels CRM and SMS actions as simulated. Live credentials can use the same adapters for HubSpot and Twilio.</small></p>
       </div>
     </section>
 
-    <section id="try" class="marketing-section">
+    <section id="how-it-works" class="marketing-section workflow-section">
+      <div class="section-heading section-heading-left">
+        <p class="eyebrow">WHAT HAPPENS AFTER YOU SUBMIT</p>
+        <h2>The transcript determines the workflow.</h2>
+        <p>No scenario selector is required. CallFlow interprets the caller's words and chooses the path.</p>
+      </div>
+      <div class="workflow-grid">
+        <div class="workflow-copy-card">
+          <span>01</span><h3>Understand</h3><p>Detect the caller's intent and extract useful details such as the requested service and time.</p>
+        </div>
+        <div class="workflow-copy-card">
+          <span>02</span><h3>Check knowledge</h3><p>Retrieve approved company information before generating a customer-facing answer.</p>
+        </div>
+        <div class="workflow-copy-card">
+          <span>03</span><h3>Take action</h3><p>Create an appointment, answer the question, or escalate the request based on the transcript.</p>
+        </div>
+        <div class="workflow-copy-card">
+          <span>04</span><h3>Record the outcome</h3><p>Persist the intent, action, citations, downstream adapter results, latency, and execution trace.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="outcomes" class="marketing-section">
       <div class="section-heading">
-        <p class="eyebrow">WHAT TO TEST</p>
-        <h2>Four paths. One observable workflow.</h2>
-        <p>The dashboard is designed so a recruiter can understand the system without reading the repository first.</p>
+        <p class="eyebrow">SAMPLE OUTCOMES</p>
+        <h2>One input format, different actions.</h2>
+        <p>The dashboard includes sample transcripts for each path, or you can type your own.</p>
       </div>
       <div class="feature-grid">
-        <article class="feature-card">
-          <div class="feature-icon">01</div>
-          <h3>Appointment</h3>
-          <p>Creates an appointment record, updates the CRM adapter, produces an SMS adapter result, and persists the trace.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">02</div>
-          <h3>Pricing</h3>
-          <p>Retrieves approved service policy, generates a grounded answer, and stores citations used for the response.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">03</div>
-          <h3>Emergency</h3>
-          <p>Routes high-risk requests to escalation instead of fabricating a customer-facing resolution.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon">04</div>
-          <h3>Knowledge gap</h3>
-          <p>Escalates unsupported questions and places them into a human-approved learning loop.</p>
-        </article>
+        <article class="feature-card"><div class="feature-icon">01</div><h3>Appointment</h3><p>“I need an AC diagnostic Thursday at 2 PM.” → detect booking intent, extract service/time, create the appointment, and record downstream actions.</p></article>
+        <article class="feature-card"><div class="feature-icon">02</div><h3>Pricing</h3><p>“How much is a diagnostic visit?” → retrieve approved pricing information and answer with a citation.</p></article>
+        <article class="feature-card"><div class="feature-icon">03</div><h3>Emergency</h3><p>“There is smoke coming from my furnace.” → identify a high-risk request and escalate rather than pretending to resolve it.</p></article>
+        <article class="feature-card"><div class="feature-icon">04</div><h3>Unsupported</h3><p>An unsupported question → escalate and record a knowledge gap for later human review.</p></article>
       </div>
       <div class="hero-actions centered-actions">
-        <a class="button button-primary" href="/dashboard/{{ default_tenant_slug }}#live-operations">Launch scenario runner</a>
+        <a class="button button-primary" href="/dashboard/{{ default_tenant_slug }}#live-operations">Open transcript demo</a>
         <a class="button button-outline" href="/ready">View system readiness</a>
       </div>
     </section>
 
-    <section id="workflow" class="marketing-section workflow-section">
-      <div class="section-heading section-heading-left">
-        <p class="eyebrow">EXECUTION MODEL</p>
-        <h2>Every customer-facing claim maps to an inspectable step.</h2>
-      </div>
-      <div class="workflow-grid">
-        <div class="workflow-copy-card">
-          <span>01</span><h3>Route intent</h3><p>A lightweight classifier chooses appointment, FAQ, emergency, reschedule, or unsupported paths.</p>
-        </div>
-        <div class="workflow-copy-card">
-          <span>02</span><h3>Retrieve approved knowledge</h3><p>Tenant documents provide grounded context and citations. Weak evidence triggers escalation.</p>
-        </div>
-        <div class="workflow-copy-card">
-          <span>03</span><h3>Change business state</h3><p>The workflow creates the appointment before claiming success and protects downstream actions from replay duplication.</p>
-        </div>
-        <div class="workflow-copy-card">
-          <span>04</span><h3>Persist evidence</h3><p>Outcome, latency, cost, citations, integration IDs, and execution steps are stored for review.</p>
-        </div>
-      </div>
-    </section>
-
-    <section id="architecture" class="marketing-section outcomes-section">
+    <section class="marketing-section outcomes-section">
       <div class="outcomes-panel">
         <div>
-          <p class="eyebrow eyebrow-light">DEPLOYMENT BOUNDARY</p>
-          <h2>A working public demo with a strict path to live integrations.</h2>
-          <p>The public deployment runs in explicit demo mode so anyone can test it without credentials. CRM and SMS use deterministic simulated adapters when credentials are absent. Setting <strong>DEMO_MODE=false</strong> makes those integrations fail closed unless live credentials are configured.</p>
-          <a class="text-link" href="/dashboard/{{ default_tenant_slug }}#deployment">Inspect deployment status →</a>
+          <p class="eyebrow eyebrow-light">DEMO BOUNDARY</p>
+          <h2>The demo shows the workflow without pretending simulated integrations are live.</h2>
+          <p>The public version uses explicit demo adapters for CRM and SMS when live credentials are absent. Appointment records and execution traces are created by the application; simulated downstream actions are labeled as simulated.</p>
+          <a class="text-link" href="/dashboard/{{ default_tenant_slug }}#deployment">Inspect integration status →</a>
         </div>
         <div class="outcome-stat-grid">
-          <article><span>Voice interface</span><strong>Vapi-ready</strong><small>secured webhook adapter</small></article>
-          <article><span>CRM</span><strong>HubSpot</strong><small>live or explicit demo adapter</small></article>
-          <article><span>Messaging</span><strong>Twilio</strong><small>live or explicit demo adapter</small></article>
-          <article><span>Safety</span><strong>Fail closed</strong><small>outside demo mode</small></article>
+          <article><span>Input</span><strong>Phone + transcript</strong><small>simple recruiter test</small></article>
+          <article><span>Decision</span><strong>Automatic</strong><small>no scenario selector</small></article>
+          <article><span>Knowledge</span><strong>Grounded</strong><small>approved documents</small></article>
+          <article><span>Evidence</span><strong>Inspectable</strong><small>persisted workflow trace</small></article>
         </div>
-      </div>
-    </section>
-
-    <section class="marketing-section final-cta">
-      <p class="eyebrow">START HERE</p>
-      <h2>Run an appointment call and inspect the resulting trace.</h2>
-      <p>This is the fastest way to evaluate the project.</p>
-      <div class="hero-actions centered-actions">
-        <a class="button button-primary" href="/dashboard/{{ default_tenant_slug }}#live-operations">Run interactive demo</a>
-        <a class="button button-outline" href="https://github.com/raamnandhakumar-eng/callflow-recovery">Review GitHub</a>
       </div>
     </section>
   </main>
 
   <footer class="marketing-footer">
     <a class="brand" href="/"><span class="brand-mark">CF</span><span>CallFlow Recovery</span></a>
-    <p>Production-style AI workflow demo with explicit integration boundaries.</p>
+    <p>Caller transcript → business action → persisted outcome.</p>
     <a href="/ready">System readiness</a>
   </footer>
 </body>
