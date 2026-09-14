@@ -1,0 +1,26 @@
+name: Public recruiter demo smoke
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: public-recruiter-demo-smoke
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify public recruiter demo
+        env:
+          PUBLIC_SMOKE_URL: https://callflow-recovery.onrender.com
+          PUBLIC_SMOKE_ATTEMPTS: "24"
+          PUBLIC_SMOKE_DELAY_SECONDS: "15"
+        run: python scripts/smoke_public.py
