@@ -119,13 +119,26 @@ if (demoForm) {
   });
 }
 
+const environmentText = document.querySelector(".tenant-switcher small")?.textContent?.toLowerCase() || "";
+const publicDemo = environmentText.includes("demo environment");
+
 document.querySelectorAll(".approval-form").forEach((form) => {
+  const textarea = form.querySelector("textarea");
+  const button = form.querySelector("button");
+  const status = form.querySelector(".approval-status");
+
+  if (publicDemo) {
+    textarea.disabled = true;
+    textarea.placeholder = "Publishing is disabled in the shared public demo.";
+    button.disabled = true;
+    button.textContent = "Admin approval protected";
+    status.textContent = "Run the knowledge-gap scenario to inspect escalation; shared knowledge writes require admin authorization.";
+    return;
+  }
+
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const suggestionId = form.dataset.suggestionId;
-    const textarea = form.querySelector("textarea");
-    const button = form.querySelector("button");
-    const status = form.querySelector(".approval-status");
     button.disabled = true;
     button.textContent = "Publishing…";
     status.textContent = "";
