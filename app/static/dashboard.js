@@ -46,6 +46,10 @@ function renderDemoResult(data) {
   const citations = Array.isArray(data.citations) && data.citations.length
     ? data.citations.map((item) => `<span>${escapeHtml(item.title || item.source)}</span>`).join("")
     : "<span>No citation required</span>";
+  const demoAdapters = String(data.crm_contact_id || "").startsWith("demo-")
+    || String(data.sms_message_id || "").startsWith("demo-");
+  const integrationLabel = demoAdapters ? "Demo CRM/SMS adapters" : "Live downstream integrations";
+
   result.innerHTML = `
     <div class="demo-result-header">
       <div><span class="badge badge-${escapeHtml(data.status)}">${escapeHtml(data.status)}</span><strong>${escapeHtml(data.intent.replaceAll("_", " "))}</strong></div>
@@ -56,11 +60,17 @@ function renderDemoResult(data) {
       <span>Confidence ${Math.round(Number(data.confidence || 0) * 100)}%</span>
       <span>${data.appointment_id ? `Appointment #${escapeHtml(data.appointment_id)}` : "No appointment"}</span>
       <span>${data.escalated ? "Human escalation" : "Automated outcome"}</span>
+      <span>${escapeHtml(integrationLabel)}</span>
     </div>
     <div class="citation-chips">${citations}</div>
-    <p class="reload-note">Refreshing the dashboard with the persisted outcome…</p>
+    <p class="reload-note">Outcome persisted. Refresh the dashboard when you want to update metrics and inspect the trace table.</p>
+    <button class="button button-dark button-small" type="button" id="refreshAfterDemo">Refresh and inspect trace</button>
   `;
   result.classList.remove("hidden");
+  document.querySelector("#refreshAfterDemo")?.addEventListener("click", () => {
+    window.location.hash = "call-review";
+    window.location.reload();
+  });
 }
 
 const scenarioSelect = document.querySelector("#scenarioSelect");
@@ -77,6 +87,7 @@ if (demoForm) {
     button.disabled = true;
     button.textContent = "Running workflow…";
     result.classList.add("hidden");
+    result.classList.remove("demo-result-error");
 
     const payload = {
       tenant_slug: tenantSlug,
@@ -97,7 +108,6 @@ if (demoForm) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Call workflow failed");
       renderDemoResult(data);
-      window.setTimeout(() => window.location.reload(), 2200);
     } catch (error) {
       result.textContent = error.message;
       result.classList.remove("hidden");
