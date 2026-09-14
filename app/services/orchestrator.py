@@ -14,6 +14,7 @@ from app.services.learning import LearningService
 from app.services.llm import AnswerGenerator
 from app.services.rag import RAGService
 from app.services.sms import SMSService
+from app.services.transcript import extract_transcript_details
 
 
 class CallOrchestrator:
@@ -52,6 +53,17 @@ class CallOrchestrator:
             }
         )
 
+        transcript_details = extract_transcript_details(request.transcript)
+        service = request.service or transcript_details.service
+        requested_time = request.requested_time or transcript_details.requested_time
+        steps.append(
+            {
+                "step": "transcript_understanding",
+                "service": service,
+                "requested_time": requested_time,
+            }
+        )
+
         chunks = self.rag.retrieve(db, tenant, request.transcript, top_k=3)
         steps.append(
             {
@@ -80,13 +92,20 @@ class CallOrchestrator:
                 external_call_id=request.external_call_id,
                 customer_name=request.customer_name,
                 phone=request.caller_phone,
-                service=request.service or "HVAC service visit",
-                scheduled_for=request.requested_time or "next available slot",
+                service=service or "HVAC service visit",
+                scheduled_for=requested_time or "next available slot",
                 status="confirmed",
             )
             db.add(appointment)
             db.flush()
-            steps.append({"step": "appointment_created", "appointment_id": appointment.id})
+            steps.append(
+                {
+                    "step": "appointment_created",
+                    "appointment_id": appointment.id,
+                    "service": appointment.service,
+                    "scheduled_for": appointment.scheduled_for,
+                }
+            )
             crm_write = await self.crm.upsert_contact(
                 db,
                 tenant,
