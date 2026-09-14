@@ -40,11 +40,16 @@ class SMSService:
         ):
             message_sid = await self._send_twilio(to_number, body)
             provider = "twilio"
-        else:
-            message_sid = "mock-" + hashlib.sha256(
+        elif self.settings.demo_mode:
+            message_sid = "demo-" + hashlib.sha256(
                 f"{tenant.slug}:{external_call_id}:{to_number}".encode("utf-8")
             ).hexdigest()[:12]
-            provider = "mock"
+            provider = "demo"
+        else:
+            raise RuntimeError(
+                "Twilio is not configured. Set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, "
+                "and TWILIO_FROM_NUMBER or enable DEMO_MODE."
+            )
 
         record = SMSMessage(
             tenant_id=tenant.id,
@@ -53,7 +58,7 @@ class SMSService:
             message_sid=message_sid,
             to_number=to_number,
             body=body,
-            status="sent",
+            status="sent" if provider == "twilio" else "simulated",
         )
         db.add(record)
         db.flush()
