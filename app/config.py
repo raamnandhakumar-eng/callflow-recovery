@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
     app_env: str = "development"
+    demo_mode: bool = True
     database_url: str = "sqlite:///./callflow.db"
     public_base_url: str = "http://localhost:8000"
     default_tenant_slug: str = "northstar-hvac"
