@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CallFlow Recovery product dashboard for {{ tenant.name }}.">
+  <meta name="description" content="CallFlow Recovery interactive AI workflow dashboard for {{ tenant.name }}.">
   <title>{{ tenant.name }} | CallFlow Recovery</title>
   <link rel="stylesheet" href="/static/dashboard.css">
   <script defer src="/static/dashboard.js"></script>
@@ -27,8 +27,8 @@
 
       <nav class="sidebar-nav" aria-label="Product sections">
         <a class="active" href="#overview"><span>⌂</span> Overview</a>
-        <a href="#live-operations"><span>◉</span> Live operations</a>
-        <a href="#revenue"><span>↗</span> Revenue recovery</a>
+        <a href="#live-operations"><span>◉</span> Interactive demo</a>
+        <a href="#revenue"><span>↗</span> Value model</a>
         <a href="#call-review"><span>☷</span> Call review</a>
         <a href="#knowledge"><span>✦</span> Knowledge gaps</a>
         <a href="#deployment"><span>⚙</span> Deployment</a>
@@ -37,8 +37,9 @@
       <div class="sidebar-bottom">
         <div class="environment-card">
           <span class="environment-icon">✓</span>
-          <div><strong>System healthy</strong><small>All local checks passing</small></div>
+          <div><strong>Recruiter demo ready</strong><small>Self-contained workflow path</small></div>
         </div>
+        <a class="sidebar-link" href="/ready">System readiness ↗</a>
         <a class="sidebar-link" href="/docs">API documentation ↗</a>
         <a class="sidebar-link" href="https://github.com/raamnandhakumar-eng/callflow-recovery">GitHub repository ↗</a>
       </div>
@@ -52,11 +53,11 @@
           <button class="menu-button" id="menuButton" aria-label="Open navigation">☰</button>
           <div>
             <p class="breadcrumb">CallFlow Recovery / {{ tenant.name }}</p>
-            <h1>Revenue Operations</h1>
+            <h1>AI Workflow Operations</h1>
           </div>
         </div>
         <div class="topbar-actions">
-          <span class="system-pill"><span></span> System online</span>
+          <span class="system-pill"><span></span> Recruiter demo</span>
           <a class="button button-small button-dark" href="#live-operations">Run demo call</a>
         </div>
       </header>
@@ -66,27 +67,27 @@
           <div class="page-heading-row">
             <div>
               <p class="eyebrow">OUTCOME OVERVIEW</p>
-              <h2>Every call, every action, every recovered dollar.</h2>
-              <p>Metrics are computed from persisted call traces and integration records.</p>
+              <h2>Every call, every action, every inspectable outcome.</h2>
+              <p>Metrics are computed from persisted demo traces and workflow records.</p>
             </div>
             <div class="date-chip">All-time demo data</div>
           </div>
 
           <div class="metric-grid">
             <article class="metric-card metric-card-primary">
-              <div class="metric-label"><span>Recovered revenue</span><span class="metric-icon">$</span></div>
+              <div class="metric-label"><span>Estimated booking value</span><span class="metric-icon">$</span></div>
               <strong id="metricRevenue">${{ '%.0f'|format(metrics.estimated_recovered_revenue_usd) }}</strong>
-              <small>{{ metrics.bookings }} verified booking{{ '' if metrics.bookings == 1 else 's' }}</small>
+              <small>{{ metrics.bookings }} demo booking{{ '' if metrics.bookings == 1 else 's' }} × configured value</small>
             </article>
             <article class="metric-card">
-              <div class="metric-label"><span>Calls handled</span><span class="metric-icon">☎</span></div>
+              <div class="metric-label"><span>Workflow runs</span><span class="metric-icon">☎</span></div>
               <strong id="metricCalls">{{ metrics.calls }}</strong>
-              <small>Across voice and synthetic runs</small>
+              <small>Persisted browser or voice-webhook runs</small>
             </article>
             <article class="metric-card">
-              <div class="metric-label"><span>Booking conversion</span><span class="metric-icon">✓</span></div>
+              <div class="metric-label"><span>Booking outcome rate</span><span class="metric-icon">✓</span></div>
               <strong id="metricBookingRate">{{ '%.1f'|format(metrics.booking_rate * 100) }}%</strong>
-              <small>{{ metrics.bookings }} completed outcomes</small>
+              <small>{{ metrics.bookings }} appointment record{{ '' if metrics.bookings == 1 else 's' }}</small>
             </article>
             <article class="metric-card">
               <div class="metric-label"><span>p95 latency</span><span class="metric-icon">⚡</span></div>
@@ -94,28 +95,28 @@
               <small>End-to-end orchestration</small>
             </article>
             <article class="metric-card">
-              <div class="metric-label"><span>Cost per booking</span><span class="metric-icon">¢</span></div>
+              <div class="metric-label"><span>Model cost per booking</span><span class="metric-icon">¢</span></div>
               <strong id="metricCost">${{ '%.4f'|format(metrics.cost_per_booking_usd) }}</strong>
-              <small>${{ '%.4f'|format(metrics.total_cost_usd) }} total model cost</small>
+              <small>${{ '%.4f'|format(metrics.total_cost_usd) }} recorded model cost</small>
             </article>
             <article class="metric-card">
               <div class="metric-label"><span>Escalation rate</span><span class="metric-icon">↗</span></div>
               <strong>{{ '%.1f'|format(metrics.escalation_rate * 100) }}%</strong>
-              <small>{{ metrics.escalations }} human handoff{{ '' if metrics.escalations == 1 else 's' }}</small>
+              <small>{{ metrics.escalations }} escalation outcome{{ '' if metrics.escalations == 1 else 's' }}</small>
             </article>
           </div>
         </section>
 
         <section id="live-operations" class="page-section">
           <div class="section-title-row">
-            <div><p class="eyebrow">LIVE OPERATIONS</p><h2>Run the complete workflow</h2></div>
-            <span class="section-note">Uses the same orchestrator as the Vapi webhook</span>
+            <div><p class="eyebrow">INTERACTIVE DEMO</p><h2>Run the complete workflow</h2></div>
+            <span class="section-note">Uses the same orchestrator as the Vapi webhook adapter</span>
           </div>
 
           <div class="operations-grid">
             <article class="panel demo-panel">
               <div class="panel-header">
-                <div><h3>Scenario runner</h3><p>Trigger a full call path from the browser.</p></div>
+                <div><h3>Scenario runner</h3><p>Trigger a complete workflow path from the browser.</p></div>
                 <span class="live-pill"><span></span> Ready</span>
               </div>
               <form id="demoCallForm" class="demo-form">
@@ -148,7 +149,7 @@
 
             <article class="panel live-feed-panel">
               <div class="panel-header">
-                <div><h3>Recent outcomes</h3><p>Latest persisted call traces.</p></div>
+                <div><h3>Recent outcomes</h3><p>Latest persisted workflow traces.</p></div>
                 <a class="text-link compact-link" href="#call-review">Review all →</a>
               </div>
               <div class="activity-feed">
@@ -162,7 +163,7 @@
                   </div>
                 </div>
                 {% else %}
-                <div class="empty-state"><span>☎</span><h4>No calls yet</h4><p>Run the first scenario to populate live outcomes.</p></div>
+                <div class="empty-state"><span>☎</span><h4>No runs yet</h4><p>Run the first scenario to populate persisted outcomes.</p></div>
                 {% endfor %}
               </div>
             </article>
@@ -171,26 +172,26 @@
 
         <section id="revenue" class="page-section">
           <div class="section-title-row">
-            <div><p class="eyebrow">REVENUE RECOVERY</p><h2>Before versus after</h2></div>
-            <span class="section-note">Average booking value: ${{ '%.0f'|format(tenant.average_booking_value) }}</span>
+            <div><p class="eyebrow">VALUE MODEL</p><h2>Illustrative before versus after</h2></div>
+            <span class="section-note">Configured average booking value: ${{ '%.0f'|format(tenant.average_booking_value) }}</span>
           </div>
 
           <div class="revenue-grid">
             <article class="panel revenue-summary">
               <div class="before-after-header">
-                <div><span class="baseline-label">Before CallFlow</span><strong>{{ metrics.baseline_expected_lost_calls }}</strong><small>expected lost calls</small></div>
+                <div><span class="baseline-label">Baseline model</span><strong>{{ metrics.baseline_expected_lost_calls }}</strong><small>expected lost calls</small></div>
                 <div class="recovery-arrow">→</div>
-                <div><span class="after-label">After CallFlow</span><strong>{{ metrics.bookings }}</strong><small>verified bookings</small></div>
+                <div><span class="after-label">Workflow outcomes</span><strong>{{ metrics.bookings }}</strong><small>demo bookings</small></div>
               </div>
               <div class="revenue-bar-wrap">
-                <div class="revenue-bar-label"><span>Recovered booking value</span><strong>${{ '%.0f'|format(metrics.estimated_recovered_revenue_usd) }}</strong></div>
+                <div class="revenue-bar-label"><span>Estimated booking value</span><strong>${{ '%.0f'|format(metrics.estimated_recovered_revenue_usd) }}</strong></div>
                 <div class="revenue-bar"><span style="width: {{ 100 if metrics.bookings else 0 }}%"></span></div>
               </div>
-              <p class="panel-footnote">The estimate is booking count × configured average booking value. Replace with downstream closed-won revenue when a production CRM is connected.</p>
+              <p class="panel-footnote">Illustrative only: appointment count × configured average booking value. This is not realized revenue. A customer deployment should replace it with downstream closed-won CRM revenue.</p>
             </article>
 
             <article class="panel intent-panel">
-              <div class="panel-header"><div><h3>Intent mix</h3><p>What callers need most.</p></div></div>
+              <div class="panel-header"><div><h3>Intent mix</h3><p>Intent distribution across persisted runs.</p></div></div>
               <div class="intent-list">
                 {% for intent, count in intent_counts.items() %}
                 <div class="intent-row">
@@ -204,10 +205,10 @@
             </article>
 
             <article class="panel completion-panel">
-              <div class="panel-header"><div><h3>Workflow completion</h3><p>Verified downstream actions.</p></div></div>
+              <div class="panel-header"><div><h3>Adapter completion</h3><p>Persisted downstream workflow records. Demo adapters may be simulated.</p></div></div>
               <div class="completion-ring-grid">
-                <div class="ring-stat" style="--value: {{ metrics.crm_completion_rate * 100 }}"><div><strong>{{ '%.0f'|format(metrics.crm_completion_rate * 100) }}%</strong><span>CRM</span></div></div>
-                <div class="ring-stat" style="--value: {{ metrics.sms_completion_rate * 100 }}"><div><strong>{{ '%.0f'|format(metrics.sms_completion_rate * 100) }}%</strong><span>SMS</span></div></div>
+                <div class="ring-stat" style="--value: {{ metrics.crm_completion_rate * 100 }}"><div><strong>{{ '%.0f'|format(metrics.crm_completion_rate * 100) }}%</strong><span>CRM record</span></div></div>
+                <div class="ring-stat" style="--value: {{ metrics.sms_completion_rate * 100 }}"><div><strong>{{ '%.0f'|format(metrics.sms_completion_rate * 100) }}%</strong><span>SMS record</span></div></div>
               </div>
             </article>
           </div>
@@ -271,7 +272,7 @@
 
           <div class="knowledge-grid">
             <article class="panel suggestions-panel">
-              <div class="panel-header"><div><h3>Knowledge gaps</h3><p>Repeated unresolved questions from real traces.</p></div><span class="count-chip">{{ suggestions|length }}</span></div>
+              <div class="panel-header"><div><h3>Knowledge gaps</h3><p>Repeated unresolved questions from persisted traces.</p></div><span class="count-chip">{{ suggestions|length }}</span></div>
               <div class="suggestion-list">
                 {% for suggestion in suggestions %}
                 <div class="suggestion-card">
@@ -325,7 +326,7 @@
           </div>
 
           <article class="panel appointments-panel">
-            <div class="panel-header"><div><h3>Recent bookings</h3><p>Verified appointments created by the workflow.</p></div><span class="count-chip">{{ appointments|length }}</span></div>
+            <div class="panel-header"><div><h3>Recent appointment records</h3><p>Appointments created by the workflow in this environment.</p></div><span class="count-chip">{{ appointments|length }}</span></div>
             <div class="appointment-grid">
               {% for appointment in appointments %}
               <div class="appointment-card">
