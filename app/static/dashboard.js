@@ -130,7 +130,7 @@ function renderDemoResult(data) {
       <span>${escapeHtml(integrationLabel)}</span>
     </div>
     <div class="citation-chips">${citations}</div>
-    <p class="reload-note">Outcome persisted. Refresh the dashboard when you want to update metrics and inspect the trace table.</p>
+    <p class="reload-note">Outcome persisted. Use the trace review below for the full execution details.</p>
     <button class="button button-dark button-small" type="button" id="refreshAfterDemo">Refresh and inspect trace</button>
   `;
   result.classList.remove("hidden");
@@ -138,6 +138,30 @@ function renderDemoResult(data) {
     window.location.hash = "call-review";
     window.location.reload();
   });
+}
+
+function addRecentOutcome(data, transcript) {
+  const feed = document.querySelector(".activity-feed");
+  if (!feed) return;
+
+  feed.querySelector(".empty-state")?.remove();
+
+  const item = document.createElement("div");
+  item.className = "activity-item";
+  item.innerHTML = `
+    <span class="activity-status status-${escapeHtml(data.status)}"></span>
+    <div class="activity-content">
+      <div>
+        <strong>${escapeHtml(String(data.intent || "unknown").replaceAll("_", " ").replace(/\b\w/g, (char) => char.toUpperCase()))}</strong>
+        <span class="badge badge-${escapeHtml(data.status)}">${escapeHtml(data.status)}</span>
+      </div>
+      <p>${escapeHtml(transcript)}</p>
+      <small>${escapeHtml(data.latency_ms)} ms · $${Number(data.cost_usd || 0).toFixed(5)} · ${Math.round(Number(data.confidence || 0) * 100)}% confidence</small>
+    </div>
+  `;
+
+  feed.prepend(item);
+  [...feed.querySelectorAll(".activity-item")].slice(6).forEach((row) => row.remove());
 }
 
 setupTranscriptOnlyDemo();
@@ -179,6 +203,7 @@ if (demoForm) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.detail || "Call workflow failed");
       renderDemoResult(data);
+      addRecentOutcome(data, transcript);
     } catch (error) {
       result.textContent = error.message;
       result.classList.remove("hidden");
