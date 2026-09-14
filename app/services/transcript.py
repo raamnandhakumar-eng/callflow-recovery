@@ -30,7 +30,7 @@ def extract_transcript_details(transcript: str) -> TranscriptDetails:
         if day in lower:
             requested_time = day.title()
             marker = lower.find(day) + len(day)
-            tail = text[marker:].strip()
+            tail = text[marker:].strip().rstrip(".,!?;")
             if tail.lower().startswith("at "):
                 requested_time = f"{day.title()} {tail}"
             break
