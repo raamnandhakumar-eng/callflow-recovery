@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     database_url: str = "sqlite:///./callflow.db"
     public_base_url: str = "http://localhost:8000"
     default_tenant_slug: str = "northstar-hvac"
+    admin_api_key: str | None = None
 
     openai_api_key: str | None = None
     openai_model: str = "gpt-4.1-mini"
