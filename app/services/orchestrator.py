@@ -95,7 +95,13 @@ class CallOrchestrator:
                 request.caller_phone,
                 intent.name,
             )
-            steps.append({"step": "crm_upsert", "contact_id": crm_write.contact_id})
+            steps.append(
+                {
+                    "step": "crm_upsert",
+                    "provider": crm_write.provider,
+                    "contact_id": crm_write.contact_id,
+                }
+            )
             confirmation = (
                 f"{tenant.name}: your {appointment.service} is booked for "
                 f"{appointment.scheduled_for}. Reply HELP if you need assistance."
@@ -107,11 +113,24 @@ class CallOrchestrator:
                 request.caller_phone,
                 confirmation,
             )
-            steps.append({"step": "sms_sent", "message_id": sms.message_sid})
-            answer = (
-                f"Your {appointment.service} is booked for {appointment.scheduled_for}. "
-                "I sent a confirmation text."
+            steps.append(
+                {
+                    "step": "sms_confirmation",
+                    "provider": sms.provider,
+                    "message_id": sms.message_sid,
+                    "status": sms.status,
+                }
             )
+            if sms.provider == "demo":
+                answer = (
+                    f"Demo booking created for {appointment.service} at "
+                    f"{appointment.scheduled_for}. CRM and SMS actions were simulated."
+                )
+            else:
+                answer = (
+                    f"Your {appointment.service} is booked for {appointment.scheduled_for}. "
+                    "I sent a confirmation text."
+                )
             status = "booked"
         elif intent.name == "emergency":
             escalated = True
