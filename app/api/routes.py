@@ -300,17 +300,21 @@ def dashboard(
     max_intent_count = max(intent_counts.values(), default=1)
 
     integrations = {
-        "voice": "connected" if settings.vapi_webhook_secret else "demo mode",
-        "crm": "connected" if settings.hubspot_access_token else "mock adapter",
+        "voice": "webhook secured" if settings.vapi_webhook_secret else "browser demo input",
+        "crm": "live HubSpot" if settings.hubspot_access_token else "demo adapter",
         "sms": (
-            "connected"
+            "live Twilio"
             if settings.twilio_account_sid
             and settings.twilio_auth_token
             and settings.twilio_from_number
-            else "mock adapter"
+            else "demo adapter"
         ),
-        "llm": "connected" if settings.openai_api_key else "deterministic mode",
-        "database": "PostgreSQL" if settings.database_url.startswith("postgres") else "SQLite",
+        "llm": "live model" if settings.openai_api_key else "deterministic generator",
+        "database": (
+            "PostgreSQL"
+            if settings.database_url.startswith("postgres")
+            else "SQLite demo storage"
+        ),
     }
 
     return templates.TemplateResponse(
