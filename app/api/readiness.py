@@ -20,22 +20,34 @@ def readiness(db: Session = Depends(get_db)) -> JSONResponse:
 
     integrations = {
         "database": database_ok,
-        "voice": bool(settings.vapi_webhook_secret),
-        "crm": bool(settings.hubspot_access_token),
-        "sms": bool(
+        "voice_webhook_secured": bool(settings.vapi_webhook_secret),
+        "crm_live": bool(settings.hubspot_access_token),
+        "sms_live": bool(
             settings.twilio_account_sid
             and settings.twilio_auth_token
             and settings.twilio_from_number
         ),
-        "llm": bool(settings.openai_api_key),
+        "llm_live": bool(settings.openai_api_key),
     }
 
     if settings.demo_mode:
         ready = database_ok
         status = "ready_for_recruiter_demo" if ready else "not_ready"
     else:
-        ready = database_ok and integrations["voice"] and integrations["crm"] and integrations["sms"]
+        ready = (
+            database_ok
+            and integrations["voice_webhook_secured"]
+            and integrations["crm_live"]
+            and integrations["sms_live"]
+        )
         status = "ready_for_live_traffic" if ready else "not_ready"
+
+    simulated_actions = []
+    if settings.demo_mode:
+        if not integrations["crm_live"]:
+            simulated_actions.append("crm")
+        if not integrations["sms_live"]:
+            simulated_actions.append("sms")
 
     return JSONResponse(
         status_code=200 if ready else 503,
@@ -43,10 +55,6 @@ def readiness(db: Session = Depends(get_db)) -> JSONResponse:
             "status": status,
             "mode": "demo" if settings.demo_mode else "live",
             "integrations": integrations,
-            "simulated_actions": (
-                [name for name in ("crm", "sms") if not integrations[name]]
-                if settings.demo_mode
-                else []
-            ),
+            "simulated_actions": simulated_actions,
         },
     )
