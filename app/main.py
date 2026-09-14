@@ -94,6 +94,15 @@ async def request_observability(request: Request, call_next):
         )
     latency_ms = int((time.perf_counter() - started) * 1000)
     response.headers["x-request-id"] = request_id
+
+    # The recruiter UI changes frequently while the product is being refined.
+    # Do not let a stale browser/CDN copy of the dashboard script preserve an old form.
+    if request.url.path.startswith("/dashboard/"):
+        response.headers["cache-control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["clear-site-data"] = '"cache"'
+    elif request.url.path == "/static/dashboard.js":
+        response.headers["cache-control"] = "no-store, no-cache, must-revalidate, max-age=0"
+
     logger.info(
         json.dumps(
             {
