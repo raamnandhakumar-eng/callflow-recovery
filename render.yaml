@@ -11,8 +11,12 @@ services:
     envVars:
       - key: APP_ENV
         value: production
+      - key: DEMO_MODE
+        value: "true"
       - key: DATABASE_URL
         value: sqlite:////tmp/callflow.db
+      - key: PUBLIC_BASE_URL
+        value: https://callflow-recovery.onrender.com
       - key: DEFAULT_TENANT_SLUG
         value: northstar-hvac
       - key: HTTP_TIMEOUT_SECONDS
