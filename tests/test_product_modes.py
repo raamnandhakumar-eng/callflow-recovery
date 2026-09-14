@@ -3,6 +3,7 @@ import asyncio
 import pytest
 from sqlalchemy import select
 
+from app import main as main_module
 from app.config import Settings
 from app.db import SessionLocal
 from app.models import Tenant
@@ -19,6 +20,22 @@ def test_recruiter_demo_readiness(client):
     assert payload["integrations"]["database"] is True
     assert "crm" in payload["simulated_actions"]
     assert "sms" in payload["simulated_actions"]
+
+
+def test_public_demo_blocks_knowledge_admin_writes(client, monkeypatch):
+    monkeypatch.setattr(main_module.settings, "app_env", "demo")
+    monkeypatch.setattr(main_module.settings, "admin_api_key", None)
+    response = client.post(
+        "/v1/knowledge/documents",
+        json={
+            "tenant_slug": "northstar-hvac",
+            "title": "Untrusted write",
+            "source": "public-demo",
+            "content": "This content must not be published by an anonymous visitor.",
+        },
+    )
+    assert response.status_code == 403
+    assert "disabled on the public demo" in response.json()["detail"]
 
 
 def test_strict_mode_rejects_missing_crm_credentials():
