@@ -9,6 +9,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.readiness import router as readiness_router
 from app.api.routes import router
 from app.db import Base, engine
 
@@ -24,7 +25,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(
     title="CallFlow Recovery",
-    version="0.1.0",
+    version="0.2.0",
     description="Voice-to-outcome vertical slice with RAG, booking, CRM, SMS, and analytics.",
     lifespan=lifespan,
 )
@@ -34,6 +35,7 @@ app.mount(
     name="static",
 )
 app.include_router(router)
+app.include_router(readiness_router)
 
 
 @app.middleware("http")
